@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setProducts, toggleLike, removeProduct, toggleShowOnlyLiked } from '@/store/productsSlice'
-import Image from 'next/image'
+
 const ProductsPage =()=>{
     const dispatch = useDispatch()
     const products = useSelector((state:any)=>state.products.products)
