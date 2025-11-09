@@ -19,21 +19,24 @@ export default function ProductsPage() {
   // Объединяем товары из API и локальные товары
   const allProducts = [...products, ...localProducts]
 
-  // Загружаем товары с API
+ // Загружаем товары с API только если их нет в localStorage
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const productsData = await getProducts()
-        dispatch(setProducts(productsData))
-      } catch (error) {
-        console.error('Failed to load products:', error)
-      } finally {
-        setLoading(false)
+    // Если товаров нет, загружаем их
+    if (products.length === 0) {
+      setLoading(true)
+      const loadProducts = async () => {
+        try {
+          const productsData = await getProducts()
+          dispatch(setProducts(productsData))
+        } catch (error) {
+          console.error('Failed to load products:', error)
+        } finally {
+          setLoading(false)
+        }
       }
+      loadProducts()
     }
-
-    loadProducts()
-  }, [dispatch])
+  }, [dispatch, products.length])
 
   const handleLike = (id: number) => {
     dispatch(toggleLike(id))
@@ -116,7 +119,16 @@ export default function ProductsPage() {
       >
         {showOnlyLiked ? 'Показать все' : 'Показать избранные'}
       </button>
-
+        {/* Кнопка для отладки - очистка localStorage */}
+  <button 
+    onClick={() => {
+      localStorage.removeItem('reduxState')
+      window.location.reload()
+    }}
+    className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+  >
+    Очистить данные
+  </button>
       {currentProducts.length === 0 ? (
         <p>Товаров не найдено.</p>
       ) : (

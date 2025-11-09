@@ -49,8 +49,30 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    setProducts(state, action) {
-      state.products = action.payload
+   setProducts(state, action) {
+      // Сохраняем лайки при обновлении товаров с API
+      const newProducts = action.payload
+      
+      // Создаем карту существующих товаров с их лайками
+      const existingProductsMap = new Map()
+      state.products.forEach(product => {
+        existingProductsMap.set(product.id, product)
+      })
+      
+      // Обновляем товары, сохраняя лайки
+      state.products = newProducts.map((newProduct: Product) => {
+        const existingProduct = existingProductsMap.get(newProduct.id)
+        if (existingProduct) {
+          // Если товар уже существует, сохраняем его лайк
+          return {
+            ...newProduct,
+            liked: existingProduct.liked
+          }
+        }
+        // Новый товар - лайк по умолчанию false
+        return newProduct
+      })
+      
       saveToLocalStorage({ products: state })
     },
     setLocalProducts(state, action) {
@@ -77,9 +99,7 @@ const productsSlice = createSlice({
     removeProduct(state, action) {
       const productId = action.payload
       
-      // Удаляем из основных товаров
       state.products = state.products.filter(p => p.id !== productId)
-      // Удаляем из локальных товаров
       state.localProducts = state.localProducts.filter(p => p.id !== productId)
       
       saveToLocalStorage({ products: state })
@@ -87,7 +107,7 @@ const productsSlice = createSlice({
     addProduct(state, action) {
       const newProduct = {
         ...action.payload,
-        id: Date.now(), // Используем timestamp для уникального ID
+        id: Date.now(),
         liked: false,
         isLocal: true
       }
