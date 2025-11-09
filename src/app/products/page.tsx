@@ -12,6 +12,7 @@ const ProductsPage =()=>{
         fetch('https://fakestoreapi.com/products')
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 const productWithLikes = data.map((product:any)=>({
                     ...product,
                     liked:false

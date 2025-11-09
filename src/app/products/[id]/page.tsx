@@ -1,12 +1,16 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const products = useSelector((state: any) => state.products.products)
+  useEffect(()=>{
+        console.log(params)
+  },[])
   
   const productId = Number(params.id)
   const product = products.find((p: any) => p.id === productId)
