@@ -8,6 +8,7 @@ export interface Product {
   image: string
   category: string
   liked: boolean
+  isLocal?: boolean
 }
 
 // Базовый URL для API
@@ -55,7 +56,7 @@ export const getProductById = async (id: number): Promise<Product> => {
 }
 
 // POST - создать новый товар
-export const createProduct = async (product: Omit<Product, 'id'>): Promise<Product> => {
+export const createProduct = async (product: Omit<Product, 'id' | 'liked' | 'isLocal'>): Promise<Product> => {
   try {
     const response = await fetch(`${API_BASE_URL}/products`, {
       method: 'POST',
@@ -68,7 +69,8 @@ export const createProduct = async (product: Omit<Product, 'id'>): Promise<Produ
     const data = await handleResponse(response)
     return {
       ...data,
-      liked: false
+      liked: false,
+    isLocal:true
     }
   } catch (error) {
     console.error('Error creating product:', error)
