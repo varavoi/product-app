@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setProducts, toggleLike, removeProduct, toggleShowOnlyLiked } from '@/store/productsSlice'
 import { getProducts } from '@/services/productApi'
-
+import ProductCard from '@/components/ProductCard'
 export default function ProductsPage() {
   const dispatch = useDispatch()
   const products = useSelector((state: any) => state.products.products)
@@ -135,52 +135,12 @@ export default function ProductsPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {currentProducts.map((product: any) => (
-              <div 
-                key={product.id} 
-                className={`border p-4 rounded cursor-pointer hover:shadow-md ${
-                  product.isLocal ? 'bg-blue-50 border-blue-200' : ''
-                }`}
-                onClick={() => window.location.href = `/products/${product.id}`}
-              >
-                {/* Пометка для локальных товаров */}
-                {product.isLocal && (
-                  <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2 inline-block">
-                    Ваш товар
-                  </div>
-                )}
-                
-                <img src={product.image} alt={product.title} className="w-full h-48 object-contain mb-2" />
-                <h3 className="font-semibold">{product.title}</h3>
-                <p className="text-gray-600 text-sm mb-2">
-                  {product.description.length > 100 
-                    ? product.description.slice(0, 100) + '...' 
-                    : product.description
-                  }
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">${product.price}</span>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleLike(product.id)
-                      }}
-                      className={`text-xl ${product.liked ? 'text-red-500' : 'text-gray-400'}`}
-                    >
-                      ♥
-                    </button>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleRemove(product.id)
-                      }}
-                      className="text-xl text-gray-400"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                key={product.id}
+                product={product}
+                onLike={handleLike}
+                onRemove={handleRemove}
+              />
             ))}
           </div>
 
