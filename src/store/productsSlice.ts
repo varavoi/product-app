@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice,PayloadAction } from '@reduxjs/toolkit'
 
 // Функции для работы с localStorage
 const loadFromLocalStorage = () => {
@@ -104,7 +104,7 @@ const productsSlice = createSlice({
       
       saveToLocalStorage({ products: state })
     },
-    addProduct(state, action) {
+    addProduct(state, action:PayloadAction<Omit<Product,'id'|'liked'|'isLocal'>>) {
       const newProduct = {
         ...action.payload,
         id: Date.now(),

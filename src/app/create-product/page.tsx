@@ -23,21 +23,21 @@ export default function CreateProductPage() {
     e.preventDefault()
     
     // Простая валидация
-    if (!title || !description || !price || !image || !category) {
+     if (!formData.title || !formData.description || !formData.price || !formData.image || !formData.category) {
       alert('Заполните все поля')
       return
     }
     setLoading(true)
     try{
         const newProductData  = {
-            title,
-            description,
-            price: parseFloat(price),
-            image,
-            category,
+            title: formData.title,
+            description: formData.description,
+            price: parseFloat(formData.price),
+            image: formData.image,
+            category: formData.category,
         }
-    const createdProduct = await createProduct(newProductData)
-     dispatch(addProduct(createdProduct))
+    //const createdProduct = await createProduct(newProductData)
+     dispatch(addProduct(newProductData))
         router.push('/products')
     }
     catch(error){
@@ -49,7 +49,7 @@ export default function CreateProductPage() {
     }
   }
 
-  const {title, description, price, image, category}=formData
+  //const {title, description, price, image, category}=formData
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({
@@ -67,7 +67,7 @@ export default function CreateProductPage() {
           <input
             type="text"
             name='title'
-            value={title}
+            value={formData.title}
             onChange={handleChange}
             className="w-full border p-2 rounded"
             required
@@ -77,7 +77,7 @@ export default function CreateProductPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700">Описание</label>
           <textarea
-            value={description}
+            value={formData.description}
             name='description'
             onChange={handleChange}
             className="w-full border p-2 rounded"
@@ -91,7 +91,7 @@ export default function CreateProductPage() {
             type="number"
             step="0.01"
             name='price'
-            value={price}
+            value={formData.price}
             onChange={handleChange}
             className="w-full border p-2 rounded"
             required
@@ -102,7 +102,7 @@ export default function CreateProductPage() {
           <label className="block text-sm font-medium text-gray-700">Ссылка на изображение</label>
           <input
             type="url"
-            value={image}
+            value={formData.image}
             name='image'
             onChange={handleChange}
             className="w-full border p-2 rounded"
@@ -114,7 +114,7 @@ export default function CreateProductPage() {
           <label className="block text-sm font-medium text-gray-700">Категория</label>
           <input
             type="text"
-            value={category}
+            value={formData.category}
             name='category'
             onChange={handleChange}
             className="w-full border p-2 rounded"
