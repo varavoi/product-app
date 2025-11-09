@@ -1,21 +1,41 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useSelector,useDispatch } from 'react-redux'
+import { setProducts } from '@/store/productsSlice'
+import { getProductById, getProducts } from '@/services/productApi'
+
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const dispatch = useDispatch()
   const products = useSelector((state: any) => state.products.products)
-  useEffect(()=>{
-    console.log(params)
-        console.log(products)
-  },[])
-  
-  const productId = Number(params.id)
-  const product = products.find((p: any) => p.id === productId)
+  const [loading, setLoading] = useState(false)
 
+  const productId = Number(params.id)
+    useEffect(()=>{
+       const loadProducts = async()=>{
+        if (products.length === 0) {
+            setLoading(true)
+            try{
+                // Если товаров нет в store, загружаем все товары
+            const productsData = await getProducts()
+            dispatch(setProducts(productsData))
+            }
+            catch(error){
+                console.error('Failed to load products:', error)
+            }
+            finally{
+                setLoading(false)
+            }
+        }
+       } 
+       loadProducts()
+    },[dispatch, products.length])
+
+    const product = products.find((p: any) => p.id === productId)
   if (!product) {
     return (
       <div className="p-4">

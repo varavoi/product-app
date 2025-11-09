@@ -4,18 +4,22 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import { addProduct } from '@/store/productsSlice'
+import { createProduct } from '@/services/productApi'
 
 export default function CreateProductPage() {
   const dispatch = useDispatch()
   const router = useRouter()
   
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [price, setPrice] = useState('')
-  const [image, setImage] = useState('')
-  const [category, setCategory] = useState('')
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: '',
+    image: '',
+    category: ''
+  })
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     // Простая валидация
@@ -23,19 +27,36 @@ export default function CreateProductPage() {
       alert('Заполните все поля')
       return
     }
-
-    const newProduct = {
-      title,
-      description,
-      price: parseFloat(price),
-      image,
-      category,
+    setLoading(true)
+    try{
+        const newProductData  = {
+            title,
+            description,
+            price: parseFloat(price),
+            image,
+            category,
+        }
+    const createdProduct = await createProduct(newProductData)
+     dispatch(addProduct(createdProduct))
+        router.push('/products')
     }
-
-    dispatch(addProduct(newProduct))
-    router.push('/products')
+    catch(error){
+        console.error('Failed to create product:', error)
+        alert('Ошибка при создании товара')
+    }
+    finally{
+        setLoading(false)
+    }
   }
 
+  const {title, description, price, image, category}=formData
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target
+        setFormData(prev => ({
+        ...prev,
+        [name]: value
+        }))
+    }
   return (
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">Добавить товар</h1>
@@ -45,8 +66,9 @@ export default function CreateProductPage() {
           <label className="block text-sm font-medium text-gray-700">Название</label>
           <input
             type="text"
+            name='title'
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
@@ -56,7 +78,8 @@ export default function CreateProductPage() {
           <label className="block text-sm font-medium text-gray-700">Описание</label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            name='description'
+            onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
@@ -67,8 +90,9 @@ export default function CreateProductPage() {
           <input
             type="number"
             step="0.01"
+            name='price'
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
@@ -79,7 +103,8 @@ export default function CreateProductPage() {
           <input
             type="url"
             value={image}
-            onChange={(e) => setImage(e.target.value)}
+            name='image'
+            onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
@@ -90,14 +115,20 @@ export default function CreateProductPage() {
           <input
             type="text"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            name='category'
+            onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
         </div>
         
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-          Добавить товар
+        <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-blue-500 text-white p-2 rounded"
+        
+        >
+          {loading ? 'Добавление...' : 'Добавить товар'}
         </button>
       </form>
     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setProducts, toggleLike, removeProduct, toggleShowOnlyLiked } from '@/store/productsSlice'
-
+import {getProducts} from '@/services/productApi'
 export default function ProductsPage() {
   const dispatch = useDispatch()
   const products = useSelector((state: any) => state.products.products)
@@ -16,16 +16,19 @@ export default function ProductsPage() {
 
   // Загружаем товары с API
   useEffect(() => {
-    fetch('https://fakestoreapi.com/products')
-      .then(res => res.json())
-      .then(data => {
-        const productsWithLikes = data.map((product: any) => ({
-          ...product,
-          liked: false
-        }))
-        dispatch(setProducts(productsWithLikes))
-        setLoading(false)
-      })
+    const loadProducts =async()=>{
+        try{
+            const productsData = await getProducts()
+            dispatch(setProducts(productsData))
+        }
+        catch(error){
+            console.error('Failed to load products:', error)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+    loadProducts()
   }, [dispatch])
 
   const handleLike = (id: number) => {
