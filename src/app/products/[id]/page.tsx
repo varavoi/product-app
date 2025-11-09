@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { setProducts } from '@/store/productsSlice'
 import { getProducts } from '@/services/productApi'
+import Loading from '@/components/Loading'
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -40,11 +41,7 @@ export default function ProductDetailPage() {
   const product = allProducts.find((p: any) => p.id === productId)
 
   if (loading) {
-    return (
-      <div className="p-4">
-        <p>Загрузка товара...</p>
-      </div>
-    )
+    return <Loading message="Загрузка товара..." />
   }
 
   if (!product) {
