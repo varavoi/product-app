@@ -9,7 +9,8 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const products = useSelector((state: any) => state.products.products)
   useEffect(()=>{
-        console.log(params)
+    console.log(params)
+        console.log(products)
   },[])
   
   const productId = Number(params.id)
