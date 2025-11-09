@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import ReduxProvider from "./ReduxProvider";
-
+import Navigation from "@/components/Navigation";
 
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ReduxProvider>
+          <Navigation/>
           {children}
         </ReduxProvider>
       </body>
