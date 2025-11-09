@@ -25,7 +25,7 @@ const ProductCard = ({product,onLike,onRemove}:IProps) => {
                         :product.description
     return (
         <div className="border p-4 rounded shadow-sm cursor-pointer" onClick={handleClick}>
-        <Image src={product.image} alt={product.title} className="w-full h-48 object-contain mb-2" />
+        <img src={product.image} alt={product.title} className="w-full h-48 object-contain mb-2" />
         <h3 className="font-semibold">{product.title}</h3>
         <p className="text-gray-600 text-sm">{shortText}</p>
         <div className="flex justify-between items-center mt-2">

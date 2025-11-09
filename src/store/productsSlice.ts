@@ -34,9 +34,9 @@ const productsSlice =createSlice({
                 product.liked =!product.liked
             }
         },
-        removeProducts(state,action){
-            const removeId=action.payload
-            state.products=state.products.filter(p=>p.id!==removeId)
+        removeProduct(state,action){
+            const productId = action.payload
+            state.products = state.products.filter(p => p.id !== productId)
         },
         addProduct(state,action){
             const newProduct = {
@@ -51,5 +51,5 @@ const productsSlice =createSlice({
         }
     }
 })
-export const {setProducts,toggleLike,removeProducts,addProduct,toggleShowOnlyLiked} = productsSlice.actions
+export const {setProducts,toggleLike,removeProduct,addProduct,toggleShowOnlyLiked} = productsSlice.actions
 export default productsSlice.reducer
