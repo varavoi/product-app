@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setProducts, toggleLike, removeProduct, toggleShowOnlyLiked } from '@/store/productsSlice'
-import {getProducts} from '@/services/productApi'
+import { getProducts } from '@/services/productApi'
+
 export default function ProductsPage() {
   const dispatch = useDispatch()
   const products = useSelector((state: any) => state.products.products)
+  const localProducts = useSelector((state: any) => state.products.localProducts)
   const showOnlyLiked = useSelector((state: any) => state.products.showOnlyLiked)
   
   const [search, setSearch] = useState('')
@@ -14,20 +16,22 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 6
 
+  // Объединяем товары из API и локальные товары
+  const allProducts = [...products, ...localProducts]
+
   // Загружаем товары с API
   useEffect(() => {
-    const loadProducts =async()=>{
-        try{
-            const productsData = await getProducts()
-            dispatch(setProducts(productsData))
-        }
-        catch(error){
-            console.error('Failed to load products:', error)
-        }
-        finally{
-            setLoading(false)
-        }
+    const loadProducts = async () => {
+      try {
+        const productsData = await getProducts()
+        dispatch(setProducts(productsData))
+      } catch (error) {
+        console.error('Failed to load products:', error)
+      } finally {
+        setLoading(false)
+      }
     }
+
     loadProducts()
   }, [dispatch])
 
@@ -41,8 +45,8 @@ export default function ProductsPage() {
 
   // Фильтруем товары по избранному и поиску
   let visibleProducts = showOnlyLiked 
-    ? products.filter((product: any) => product.liked)
-    : products
+    ? allProducts.filter((product: any) => product.liked)
+    : allProducts
 
   // Применяем поиск
   if (search) {
@@ -69,7 +73,7 @@ export default function ProductsPage() {
     }
   }
 
-  if (loading) {
+  if (loading && products.length === 0) {
     return (
       <div className="p-4">
         <p>Загрузка товаров...</p>
@@ -81,6 +85,13 @@ export default function ProductsPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Все товары</h1>
       
+      {/* Информация о товарах */}
+      <div className="mb-4 text-sm text-gray-600">
+        {localProducts.length > 0 && (
+          <p>Показано {allProducts.length} товаров ({products.length} с API + {localProducts.length} ваших)</p>
+        )}
+      </div>
+      
       {/* Поиск */}
       <div className="mb-4">
         <input
@@ -89,7 +100,7 @@ export default function ProductsPage() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value)
-            setCurrentPage(1) // Сбрасываем на первую страницу при поиске
+            setCurrentPage(1)
           }}
           className="w-full p-2 border rounded"
         />
@@ -99,7 +110,7 @@ export default function ProductsPage() {
       <button 
         onClick={() => {
           dispatch(toggleShowOnlyLiked())
-          setCurrentPage(1) // Сбрасываем на первую страницу при смене фильтра
+          setCurrentPage(1)
         }}
         className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
       >
@@ -114,9 +125,18 @@ export default function ProductsPage() {
             {currentProducts.map((product: any) => (
               <div 
                 key={product.id} 
-                className="border p-4 rounded cursor-pointer hover:shadow-md"
+                className={`border p-4 rounded cursor-pointer hover:shadow-md ${
+                  product.isLocal ? 'bg-blue-50 border-blue-200' : ''
+                }`}
                 onClick={() => window.location.href = `/products/${product.id}`}
               >
+                {/* Пометка для локальных товаров */}
+                {product.isLocal && (
+                  <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2 inline-block">
+                    Ваш товар
+                  </div>
+                )}
+                
                 <img src={product.image} alt={product.title} className="w-full h-48 object-contain mb-2" />
                 <h3 className="font-semibold">{product.title}</h3>
                 <p className="text-gray-600 text-sm mb-2">

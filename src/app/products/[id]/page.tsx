@@ -1,41 +1,52 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
-import { useSelector,useDispatch } from 'react-redux'
 import { setProducts } from '@/store/productsSlice'
-import { getProductById, getProducts } from '@/services/productApi'
-
+import { getProducts } from '@/services/productApi'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const dispatch = useDispatch()
   const products = useSelector((state: any) => state.products.products)
+  const localProducts = useSelector((state: any) => state.products.localProducts)
   const [loading, setLoading] = useState(false)
-
+  
   const productId = Number(params.id)
-    useEffect(()=>{
-       const loadProducts = async()=>{
-        if (products.length === 0) {
-            setLoading(true)
-            try{
-                // Если товаров нет в store, загружаем все товары
-            const productsData = await getProducts()
-            dispatch(setProducts(productsData))
-            }
-            catch(error){
-                console.error('Failed to load products:', error)
-            }
-            finally{
-                setLoading(false)
-            }
-        }
-       } 
-       loadProducts()
-    },[dispatch, products.length])
 
-    const product = products.find((p: any) => p.id === productId)
+  // Объединяем товары из API и локальные
+  const allProducts = [...products, ...localProducts]
+
+  // Загружаем товары, если их нет в store
+  useEffect(() => {
+    if (products.length === 0) {
+      setLoading(true)
+      const loadProducts = async () => {
+        try {
+          const productsData = await getProducts()
+          dispatch(setProducts(productsData))
+        } catch (error) {
+          console.error('Failed to load products:', error)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadProducts()
+    }
+  }, [dispatch, products.length])
+
+  const product = allProducts.find((p: any) => p.id === productId)
+
+  if (loading) {
+    return (
+      <div className="p-4">
+        <p>Загрузка товара...</p>
+      </div>
+    )
+  }
+
   if (!product) {
     return (
       <div className="p-4">
@@ -58,6 +69,13 @@ export default function ProductDetailPage() {
       >
         Назад
       </button>
+      
+      {/* Пометка для локальных товаров */}
+      {product.isLocal && (
+        <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded mb-4 inline-block">
+          Ваш товар
+        </div>
+      )}
       
       <div className="border p-4 rounded max-w-2xl mx-auto">
         <img src={product.image} alt={product.title} className="w-full h-64 object-contain mb-4" />
