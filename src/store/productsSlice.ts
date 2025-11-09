@@ -1,4 +1,4 @@
-import { createSlice, WritableDraft } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 export interface IProduct {
   id: number
